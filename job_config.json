@@ -1,0 +1,19 @@
+{
+    "name": "Pyspark_CICD_Job",
+    "tasks": [
+        {
+            "task_key": "notebook_task_1",
+            "notebook_task": {
+                "notebook_path": "/Workspace/Shared/dev_pyspark/src/data_check.py"
+            },
+            "new_cluster": {
+                "spark_version": "15.4.x-scala2.12",
+                "node_type_id": "Standard_DS3_v2",
+                "num_workers": 0,
+                "custom_tags": {
+                    "ClusterType": "SingleNode"
+                }
+            }
+        }
+    ]
+}
