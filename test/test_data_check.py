@@ -11,8 +11,8 @@ from src.data_check import get_count, get_column_names, filter_by_column_value, 
     validate_column_types, detect_new_columns, check_non_null_columns
 
 # File paths for current and previous data
-previous_data_file_path = "C:\\Users\\admin\\OneDrive - TestPerform\\Desktop\\pyspark_cicd\\prev_data.csv"
-current_data_file_path = "C:\\Users\\admin\\OneDrive - TestPerform\\Desktop\\pyspark_cicd\\curr_data.csv"
+previous_data_file_path = "C:\\Users\\admin\\OneDrive - TestPerform\\Desktop\\pyspark_cicd\\code\\data\\prev_data.csv"
+current_data_file_path = "C:\\Users\\admin\\OneDrive - TestPerform\\Desktop\\pyspark_cicd\\data\\code\\curr_data.csv"
 
 def read_previous_data(spark):
     """Read previous data from a CSV file."""
