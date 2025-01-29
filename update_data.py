@@ -1,8 +1,8 @@
 import shutil
 import os
 
-previous_data_file_path = "C:\\Users\\admin\\OneDrive - TestPerform\\Desktop\\pyspark_cicd\\code\\data\\prev_data.csv"
-current_data_file_path = "C:\\Users\\admin\\OneDrive - TestPerform\\Desktop\\pyspark_cicd\\code\\data\\curr_data.csv"
+previous_data_file_path = "C:\\Users\\admin\\OneDrive - TestPerform\\Desktop\\pyspark_cicd\\data\\prev_data.csv"
+current_data_file_path = "C:\\Users\\admin\\OneDrive - TestPerform\\Desktop\\pyspark_cicd\\data\\curr_data.csv"
 
 
 
