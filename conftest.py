@@ -8,9 +8,17 @@ os.environ['PYSPARK_PYTHON'] = 'C:\\Users\\admin\\AppData\\Local\\Programs\\Pyth
 
 @pytest.fixture(scope="session")
 def spark():
-    return SparkSession.builder \
+    # Create the Spark session
+    spark_session = SparkSession.builder \
         .appName("PySpark Testing") \
         .master("local[*]") \
         .getOrCreate()
 
-spark.sparkContext.setLogLevel("ERROR")
+    # Set the log level to ERROR to suppress warnings
+    spark_session.sparkContext.setLogLevel("ERROR")
+    
+    # Yield the Spark session to be used in tests
+    yield spark_session
+    
+    # Optionally, stop the Spark session after the tests are done
+    spark_session.stop()
