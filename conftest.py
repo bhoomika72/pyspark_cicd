@@ -5,7 +5,7 @@ from pyspark.sql import SparkSession
 # Set environment variables for PySpark
 os.environ['SPARK_HOME'] = 'C:\\spark-3.5.4-bin-hadoop3'
 os.environ['PYSPARK_PYTHON'] = 'C:\\Users\\admin\\AppData\\Local\\Programs\\Python\\Python39\\python.exe'
-os.environ['HADOOP_HOME']= 'C:\\hadoop'
+os.environ['HADOOP_HOME']= 'C:\\hadoop-3.4.1'
 
 @pytest.fixture(scope="session")
 def spark():
