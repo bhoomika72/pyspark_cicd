@@ -12,3 +12,5 @@ def spark():
         .appName("PySpark Testing") \
         .master("local[*]") \
         .getOrCreate()
+
+spark.sparkContext.setLogLevel("ERROR")
