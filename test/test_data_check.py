@@ -14,6 +14,7 @@ from src.data_check import get_count, get_column_names, filter_by_column_value, 
 previous_data_file_path = "C:\\Users\\admin\\OneDrive - TestPerform\\Desktop\\pyspark_cicd\\code\\data\\prev_data.csv"
 current_data_file_path = "C:\\Users\\admin\\OneDrive - TestPerform\\Desktop\\pyspark_cicd\\code\\data\\curr_data.csv"
 
+
 def read_previous_data(spark):
     """Read previous data from a CSV file."""
     if os.path.exists(previous_data_file_path):
