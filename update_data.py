@@ -13,4 +13,4 @@ if os.path.exists(previous_data_file_path):
 # Overwrite prev_file with curr_file
 shutil.copy(current_data_file_path, previous_data_file_path)
 
-print(f"Successfully overwritten previous data with current data")
+print("Successfully overwritten previous data with current data")
