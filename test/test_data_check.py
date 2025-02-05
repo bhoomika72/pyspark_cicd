@@ -1,6 +1,8 @@
 import sys
 import os
+import shutil
 import pytest
+from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 
 # Add the source directory to the path
@@ -10,9 +12,9 @@ from src.data_check import get_count, get_column_names, filter_by_column_value, 
     detect_inserted_rows, detect_updated_rows, detect_deleted_rows, \
     validate_column_types, detect_new_columns, check_non_null_columns
 
-# File paths for current and previous data
+# File paths
 previous_data_file_path = "C:\\Users\\admin\\OneDrive - TestPerform\\Desktop\\pyspark_cicd\\data\\prev_data.csv"
-current_data_file_path = "C:\\Users\\admin\\OneDrive - TestPerform\\Desktop\\pyspark_cicd\data\\curr_data.csv"
+current_data_file_path = "C:\\Users\\admin\\OneDrive - TestPerform\\Desktop\\pyspark_cicd\\data\\curr_data.csv"
 
 
 def read_previous_data(spark):
@@ -47,9 +49,7 @@ def test_insertion_detection(spark):
         pytest.skip("Previous data file not found. Skipping insertion detection test.")
 
     inserted_rows = detect_inserted_rows(current_df, previous_df)
-    inserted_count = inserted_rows.count()
-    print(f"Inserted Rows Count: {inserted_count}")
-    assert inserted_count >= 0
+    assert inserted_rows.count() >= 0
 
 @pytest.mark.data_validation
 def test_update_detection(spark):
@@ -60,57 +60,19 @@ def test_update_detection(spark):
         pytest.skip("Previous data file not found. Skipping update detection test.")
 
     updated_rows = detect_updated_rows(current_df, previous_df)
-    updated_count = updated_rows.count()
-    print(f"Updated Rows Count: {updated_count}")
-    assert updated_count >= 0
-
-@pytest.mark.data_validation
-def test_insertion_detection(spark):
-    current_df = spark.read.csv(current_data_file_path, header=True, inferSchema=True)
-    previous_df = read_previous_data(spark)
-
-    # If previous data is not found, assume 0 inserted rows
-    if previous_df.count() == 0:
-        inserted_rows = current_df  # All rows are treated as inserted
-    else:
-        inserted_rows = detect_inserted_rows(current_df, previous_df)
-
-    inserted_count = inserted_rows.count()
-    print(f"Inserted Rows Count: {inserted_count}")
-    assert inserted_count >= 0
-
-
-@pytest.mark.data_validation
-def test_update_detection(spark):
-    current_df = spark.read.csv(current_data_file_path, header=True, inferSchema=True)
-    previous_df = read_previous_data(spark)
-
-    # If previous data is not found, assume 0 updated rows
-    if previous_df.count() == 0:
-        updated_rows = spark.createDataFrame([], current_df.schema)  # Empty DataFrame, no updates
-    else:
-        updated_rows = detect_updated_rows(current_df, previous_df)
-
-    updated_count = updated_rows.count()
-    print(f"Updated Rows Count: {updated_count}")
-    assert updated_count >= 0
-
+    assert updated_rows.count() >= 0
 
 @pytest.mark.data_validation
 def test_deletion_detection(spark):
     current_df = spark.read.csv(current_data_file_path, header=True, inferSchema=True)
     previous_df = read_previous_data(spark)
 
-    # If previous data is not found, assume 0 deleted rows
     if previous_df.count() == 0:
-        deleted_rows = spark.createDataFrame([], current_df.schema)  # Empty DataFrame, no deletions
+        deleted_rows = spark.createDataFrame([], current_df.schema)
     else:
         deleted_rows = detect_deleted_rows(current_df, previous_df)
 
-    deleted_count = deleted_rows.count()
-    print(f"Deleted Rows Count: {deleted_count}")
-    assert deleted_count >= 0
-
+    assert deleted_rows.count() >= 0
 
 @pytest.mark.data_validation
 def test_new_columns_detection(spark):
@@ -118,31 +80,22 @@ def test_new_columns_detection(spark):
     if os.path.exists(previous_data_file_path):
         previous_df = spark.read.csv(previous_data_file_path, header=True, inferSchema=True)
     else:
-        print("Previous data file not found. Considering only current data.")
         previous_df = spark.createDataFrame([], current_df.schema)
 
     new_columns = detect_new_columns(current_df, previous_df)
-    if new_columns:
-        print(f"New columns added: {new_columns}")
-        assert len(new_columns) > 0
-    else:
-        print("No new columns detected.")
-        assert len(new_columns) == 0
+    assert len(new_columns) >= 0
 
 @pytest.mark.data_validation
 def test_column_names_and_types(spark):
     current_df = spark.read.csv(current_data_file_path, header=True, inferSchema=True)
     expected_schema = {"Id": "int", "Name": "string", "Age": "int", "City": "string"}
-    result = validate_column_types(current_df, expected_schema)
-    assert result is True
+    assert validate_column_types(current_df, expected_schema) is True
 
 @pytest.mark.data_validation
 def test_non_null_columns(spark):
     df = spark.read.csv(current_data_file_path, header=True, inferSchema=True)
     non_null_columns = ["Id", "Name"]
-
-    result = check_non_null_columns(df, non_null_columns)
-    assert result is True
+    assert check_non_null_columns(df, non_null_columns) is True
 
 ### Smoke Test Cases ###
 @pytest.mark.smoke
@@ -162,3 +115,15 @@ def test_missing_file_handling(spark):
         df = spark.read.csv(missing_file_path, header=True, inferSchema=True)
     except Exception as e:
         assert "Path does not exist" in str(e)
+
+### Overwrite Previous Data After Tests ###
+@pytest.fixture(scope="session", autouse=True)
+def overwrite_previous_data_after_tests():
+    """Overwrite previous data file with current data after all tests run."""
+    yield  # Wait until all tests are done
+
+    if os.path.exists(previous_data_file_path):
+        os.remove(previous_data_file_path)
+
+    shutil.copy(current_data_file_path, previous_data_file_path)
+    
